@@ -38,7 +38,7 @@ We are now actively working on building **custom ROMs** for this device. Here's 
 
 A sincere thank you to:
 
-- User fahimfrk for device tree
+- User 'fahimfrk' for device tree[https://github.com/fahimfrk/lxx521_Dimensity7300]
 
 ---
 
@@ -47,6 +47,11 @@ A sincere thank you to:
 - ⭐ **Star** this repository to stay notified
 - 👀 **Watch** for release announcements
 - 💬 Open an **Issue** for bugs or questions
+
+<div align="center">
+[![Telegram](https://img.shields.io/badge/Telegram-Support%20Channel-blue?style=for-the-badge&logo=telegram)](https://t.me/lava_play_ultra)
+[![SourceForge](https://img.shields.io/badge/SourceForge-Download-orange?style=for-the-badge&logo=sourceforge)]()
+</div>
 
 ---
 
