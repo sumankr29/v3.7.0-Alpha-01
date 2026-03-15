@@ -108,6 +108,6 @@ Join our Telegram support channel:
 
 <div align="center">
 
-Made with ❤️ by the community, for the community.
+Made with ❤️ by the kotler-m2, for the community.
 
 </div>
