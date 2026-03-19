@@ -9,6 +9,8 @@
 
 </div>
 
+---
+
 ## 📱 Device Info
 
 | Feature | Details |
@@ -20,6 +22,7 @@
 | Resolution | 1080 × 2400 |
 | Android | 15 |
 
+---
 
 ## ✅ Working Features
 
