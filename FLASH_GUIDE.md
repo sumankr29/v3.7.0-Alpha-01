@@ -8,161 +8,126 @@
 
 </div>
 
-> ## 🚨 STRICT WARNING — READ BEFORE PROCEEDING
->
-> **This guide is intended for users who are already familiar with custom recovery and custom ROM installation.**
->
-> - ❌ If you have **never flashed a custom recovery or custom ROM before**, do **NOT** attempt this on your daily driver or primary device.
-> - 🧪 **First practice and experiment on another MediaTek device** you are willing to risk — get comfortable with the process before touching your Lava Play Ultra 5G.
-> - ⚠️ This device runs a **MediaTek (MTK) SoC** — it does **NOT** behave like a Snapdragon device. Commands, tools, and recovery methods are different. Do not assume knowledge from Snapdragon devices applies here.
-> - 💀 Flashing wrong files, wrong slots, or skipping steps **can permanently damage your device**.
-> - 📵 **I am not responsible for any damage, data loss, bootloops, or bricks caused to your device.** You proceed entirely at your own risk.
->
-> **You have been warned. Proceed only if you know what you are doing.** ✅
->
-> ---
+---
 
-> ⚠️ **Read the entire guide before starting. Skipping steps may brick your device.**
+> ## 🚨 WARNING — READ BEFORE PROCEEDING
+>
+> - ❌ **Do NOT attempt this if you have never flashed a custom recovery before.** Practice on a device you are willing to risk first.
+> - ⚠️ This device uses a **MediaTek (MTK) SoC** — it does NOT behave like a Snapdragon device. Do not assume Snapdragon knowledge applies here.
+> - 💀 Flashing wrong files or skipping steps **can permanently brick your device.**
+> - 📵 **I am not responsible for any damage, data loss, bootloops, or bricks.** You proceed entirely at your own risk.
+>
+> **Read the entire guide before starting. Do not skip any step.**
 
 ---
 
 ## 📋 Prerequisites
 
-- USB Debugging enabled
+Before starting, make sure you have the following ready:
+
+- USB Debugging enabled on your device
 - ADB & Fastboot installed on your PC → [Download Platform Tools](https://developer.android.com/studio/releases/platform-tools)
-- Original `vbmeta.img` from your stock firmware
-- Your custom `vendor_boot.img` (TWRP build)
+- Stock `vbmeta.img`, `vbmeta_system.img`, and `vbmeta_vendor.img` from your stock firmware
+- Custom `vendor_boot.img` (TWRP build) downloaded from the [Releases](../../releases/latest) page
 
 ---
 
 ## 🔓 Step 1 — Unlock Bootloader
 
-> 💡 **If your bootloader is already unlocked, skip to Step 2.**
+> 💡 If your bootloader is already unlocked, skip to Step 2.
 
-### Enable OEM Unlocking on device:
+**Enable Developer Options and OEM Unlocking:**
 1. Go to **Settings → About Phone**
 2. Tap **Build Number** 7 times until you see *"You are now a developer!"*
-3. Go back to **Settings → System → Developer Options**
+3. Go to **Settings → System → Developer Options**
 4. Enable **OEM Unlocking** ✅
 5. Enable **USB Debugging** ✅
 
-### Unlock via ADB & Fastboot:
+**Reboot to bootloader and unlock:**
+```bash
+adb reboot bootloader
+fastboot flashing unlock
+```
 
-**If your device already has ADB access:**
+On your device screen, use Volume Up to confirm and Volume Down to cancel.
+
+> ⚠️ **Unlocking the bootloader will wipe all data on your device. Back up everything first.**
+
+After unlocking, complete the initial device setup, then re-enable Developer Options and USB Debugging before continuing.
+
+---
+
+## 🛡️ Step 2 — Disable Verified Boot (vbmeta)
+
+This step disables Android Verified Boot so TWRP can boot correctly:
+
+```bash
+fastboot flash vbmeta --disable-verity --disable-verification vbmeta.img
+fastboot flash vbmeta_system --disable-verity --disable-verification vbmeta_system.img
+fastboot flash vbmeta_vendor --disable-verity --disable-verification vbmeta_vendor.img
+```
+
+> ✅ These `.img` files are found inside your extracted stock firmware folder.
+
+---
+
+## 💾 Step 3 — Backup All Partitions
+
+**Always back up before flashing anything.**
+
+Use MTK Client or SP Flash Tool to read back all partitions and store them somewhere safe. This backup is your only way back if something goes wrong.
+
+---
+
+## 🚀 Step 4 — Flash TWRP Recovery
+
+Reboot to bootloader:
 ```bash
 adb reboot bootloader
 ```
 
-**Once in fastboot mode:**
+**Flash to the active slot (recommended):**
 ```bash
-fastboot flashing unlock
+fastboot flash vendor_boot vendor_boot.img
 ```
 
-On your device screen, use **Volume Up/Down** to navigate and confirm:
-- **Volume Up** = Yes, unlock bootloader ✅
-- **Volume Down** = No, cancel ❌
+**Or flash to the inactive slot only:**
 
-> ⚠️ **Unlocking the bootloader will wipe all data on your device!**
-
-**If you rebooted back to system after unlock:**
-1. Complete the initial setup
-2. Re-enable **Developer Options** and **USB Debugging**
-3. Run `adb reboot bootloader` again to get back to fastboot
-
----
-
-## 🛡️ Step 2 — Disable vbmeta Verification
-
-This step disables Android Verified Boot checks so TWRP can boot correctly:
-
-```bash
-fastboot flash vbmeta --disable-verity --disable-verification vbmeta.img
-```
-
-> ✅ `vbmeta.img` is found inside your extracted stock firmware folder.
-
----
-
-## 💾 Step 3 — Backup Your Stock vendor_boot
-
-**Always back up before touching any partition!**
-
-```bash
-fastboot fetch vendor_boot vendor_boot_stock_backup.img
-```
-
-> ⚠️ If you get an error with the above command, use one of these alternatives:
-> - **SP Flash Tool** → Use the **Readback** feature to pull the `vendor_boot` partition
-> - **Download** the stock `vendor_boot.img` from your device firmware package
-
-Keep this backup somewhere safe — it's your way back if anything goes wrong! 🔒
-
----
-
-## 🚀 Step 4 — Flash TWRP to Inactive Slot
-
-Since the **Lava Play Ultra 5G is an A/B device**, you can safely flash TWRP to the **inactive slot** — the slot you are NOT currently booted into. This means if something goes wrong, your current slot is untouched.
-
-### Check your current active slot:
-```bash
-fastboot getvar current-slot
-```
-
-### Flash to the inactive slot:
-
-**If you are currently on Slot A → flash to Slot B:**
+If you are currently on Slot A, flash to Slot B:
 ```bash
 fastboot flash vendor_boot_b vendor_boot.img
 ```
 
-**If you are currently on Slot B → flash to Slot A:**
+If you are currently on Slot B, flash to Slot A:
 ```bash
 fastboot flash vendor_boot_a vendor_boot.img
 ```
 
----
-
-## 🔄 Step 5 — Switch Slot & Boot into TWRP
-
-Switch to the slot you just flashed and reboot into recovery:
-
+**Boot into TWRP without permanently flashing (test first):**
 ```bash
-fastboot --set-active=b
-fastboot reboot recovery
+fastboot boot vendor_boot.img
 ```
 
-> Replace `b` with `a` if you flashed to Slot A.
-
-If everything went well, your device will boot into **TWRP recovery**! 🎉
-
 ---
 
-## ↩️ How to Revert Back to Stock Recovery
+## ↩️ Step 5 — Restore Stock Recovery
 
-If something goes wrong or you want to go back, flash your backup:
+If you want to go back to stock recovery, rename your backed-up `vendor_boot_a.img` or `vendor_boot_b.img` to `vendor_boot_stock.img` and flash it:
 
 ```bash
-fastboot flash vendor_boot vendor_boot_stock_backup.img
-fastboot --set-active=a
+adb reboot bootloader
+fastboot flash vendor_boot vendor_boot_stock.img
 fastboot reboot
 ```
 
----
-
-## ❓ Common Errors
-
-| Error | Fix |
-|-------|-----|
-| `fastboot devices` shows nothing | Reinstall MTK drivers, try different USB port |
-| `FAILED (remote: not allowed)` | OEM unlock not enabled, check Developer Options |
-| `fastboot fetch` not working | Use SP Flash Tool Readback to backup vendor_boot |
-| Device bootloops after flash | Revert using stock backup via SP Flash Tool |
+For a full stock ROM restore, follow the dedicated restore guide:
+👉 [RESTORE_GUIDE.md](https://github.com/sumankr29/lava_lxx521_recovery/blob/main/RESTORE_GUIDE.md)
 
 ---
 
-## 💬 Need Help?
+## 💬 Support
 
-Join our Telegram support channel:
+If you face any issues, join the Telegram support channel:
 
 [![Telegram](https://img.shields.io/badge/Telegram-Support%20Channel-blue?style=for-the-badge&logo=telegram)](https://t.me/lava_play_ultra)
 
@@ -170,6 +135,6 @@ Join our Telegram support channel:
 
 <div align="center">
 
-Made with ❤️ by the kotler-m2, for the community.
+Made with ❤️ by kotler-m2, for the community.
 
 </div>
